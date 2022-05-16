@@ -200,7 +200,7 @@ class Preprocessor:
             return None
 
         # Compute mel-scale spectrogram and energy
-        mel_spectrogram, energy = self.calc_spectrogram(wav, self.STFT)
+        mel_spectrogram, energy = self.calc_spectrogram(wav)
         mel_spectrogram = mel_spectrogram[:, : sum(duration)]
         energy = energy[: sum(duration)]
 
