@@ -10,8 +10,8 @@ from scipy.interpolate import interp1d
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
-import torch
-import torchaudio
+import audio as Audio
+
 
 class Preprocessor:
     def __init__(self, config):
@@ -40,21 +40,14 @@ class Preprocessor:
         self.pitch_normalization = config["preprocessing"]["pitch"]["normalization"]
         self.energy_normalization = config["preprocessing"]["energy"]["normalization"]
 
-        self.spec_module = torchaudio.transforms.Spectrogram(
-            n_fft=config["preprocessing"]["stft"]["filter_length"],
-            win_length=config["preprocessing"]["stft"]["win_length"],
-            hop_length=config["preprocessing"]["stft"]["hop_length"],
-            power=1,
-            center=True,
-        )
-        self.mel_scale = torchaudio.transforms.MelScale(
-            n_mels=config["preprocessing"]["mel"]["n_mel_channels"],
-            sample_rate=config["preprocessing"]["audio"]["sampling_rate"],
-            f_min=config["preprocessing"]["mel"]["mel_fmin"],
-            f_max=config["preprocessing"]["mel"]["mel_fmax"],
-            n_stft=config["preprocessing"]["stft"]["filter_length"] // 2 + 1,
-            norm="slaney",
-            mel_scale="slaney",
+        self.STFT = Audio.stft.TacotronSTFT(
+            config["preprocessing"]["stft"]["filter_length"],
+            config["preprocessing"]["stft"]["hop_length"],
+            config["preprocessing"]["stft"]["win_length"],
+            config["preprocessing"]["mel"]["n_mel_channels"],
+            config["preprocessing"]["audio"]["sampling_rate"],
+            config["preprocessing"]["mel"]["mel_fmin"],
+            config["preprocessing"]["mel"]["mel_fmax"],
         )
 
     def build_from_path(self):
@@ -200,7 +193,7 @@ class Preprocessor:
             return None
 
         # Compute mel-scale spectrogram and energy
-        mel_spectrogram, energy = self.calc_spectrogram(wav)
+        mel_spectrogram, energy = Audio.tools.get_mel_from_wav(wav, self.STFT)
         mel_spectrogram = mel_spectrogram[:, : sum(duration)]
         energy = energy[: sum(duration)]
 
@@ -321,11 +314,3 @@ class Preprocessor:
             min_value = min(min_value, min(values))
 
         return min_value, max_value
-
-    def calc_spectrogram(self, audio):
-        audio = torch.clip(torch.from_numpy(audio), -1, 1)
-        magspec = self.spec_module(audio)
-        melspec = self.mel_scale(magspec)
-        logmelspec = torch.log(torch.clamp_min(melspec, 1.0e-5) * 1.0).to(torch.float32)
-        energy = torch.norm(magspec, dim=0)
-        return logmelspec.numpy(), energy.numpy()
