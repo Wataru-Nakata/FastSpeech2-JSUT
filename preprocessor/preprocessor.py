@@ -52,7 +52,7 @@ class Preprocessor:
             sample_rate=config["preprocessing"]["audio"]["sampling_rate"],
             f_min=config["preprocessing"]["mel"]["mel_fmin"],
             f_max=config["preprocessing"]["mel"]["mel_fmax"],
-            n_stft=config["preprocess"]["stft"]["filter_length"] // 2 + 1,
+            n_stft=config["preprocessing"]["stft"]["filter_length"] // 2 + 1,
             norm="slaney",
             mel_scale="slaney",
         )
