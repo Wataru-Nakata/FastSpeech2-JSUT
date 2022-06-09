@@ -4,7 +4,6 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-tensorboard = "*"
 pylint = "*"
 
 [packages]
@@ -18,7 +17,6 @@ pypinyin = "==0.39.0"
 pyworld = "==0.2.10"
 scikit-learn = "==0.23.2"
 scipy = "==1.5.0"
-tensorboard = "==2.2.2"
 tgt = "==1.4.4"
 torch = "==1.11.0"
 tqdm = "==4.46.1"
@@ -30,6 +28,8 @@ torch-tb-profiler = "*"
 pillow = "*"
 pyopenjtalk = "*"
 torchaudio = "==0.11.0"
+protobuf = "*"
+tensorboard = "*"
 
 [requires]
 python_version = "3.8"
