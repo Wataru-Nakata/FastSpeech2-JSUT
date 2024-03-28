@@ -180,7 +180,9 @@ class Dataset(Dataset):
 
 class TextDataset(Dataset):
     def __init__(self, filepath, preprocess_config):
+        self.preprocessed_path = preprocess_config["path"]["preprocessed_path"]
         self.cleaners = preprocess_config["preprocessing"]["text"]["text_cleaners"]
+        self.symbol_to_id = {s: i for i, s in enumerate(symbols)}
 
         self.basename, self.speaker, self.text, self.raw_text = self.process_meta(
             filepath
@@ -203,7 +205,7 @@ class TextDataset(Dataset):
         speaker = self.speaker[idx]
         speaker_id = self.speaker_map[speaker]
         raw_text = self.raw_text[idx]
-        phone = np.array(text_to_sequence(self.text[idx], self.cleaners))
+        phone = np.array([self.symbol_to_id[t] for t in self.text[idx].replace("{", "").replace("}", "").split()])
         accent = None
         if self.use_accent:
             with open(os.path.join(self.preprocessed_path, "accent",basename+ '.accent')) as f:
